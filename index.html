@@ -6,6 +6,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Suivi DLC — BK Barachois K1444</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyCV4Y4hRhdQip7g12jrfe9j6AzBQgdJA5k",
+    authDomain: "dlc-barachois.firebaseapp.com",
+    projectId: "dlc-barachois",
+    storageBucket: "dlc-barachois.firebasestorage.app",
+    messagingSenderId: "428449127019",
+    appId: "1:428449127019:web:40c97a16317cd31c242f2e"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window.db = db;
+  window.fsCollection = collection;
+  window.fsOnSnapshot = onSnapshot;
+  window.fsAddDoc = addDoc;
+  window.fsUpdateDoc = updateDoc;
+  window.fsDeleteDoc = deleteDoc;
+  window.fsDoc = doc;
+  window.fsSetDoc = setDoc;
+  window.firebaseReady = true;
+  document.addEventListener('DOMContentLoaded', () => { if(window.initApp) window.initApp(); });
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8fafc;min-height:100vh;}
@@ -1212,9 +1236,252 @@ function renderHistory(){
 
 // =====================
 // INIT
+
 // =====================
-load();
-renderLogin();
+// FIREBASE STORAGE
+// =====================
+function load(){
+  // Load users from localStorage (they are set per device for PIN security)
+  try{users=JSON.parse(localStorage.getItem("dlc_users")||"null")||DEFAULT_USERS;}catch{users=DEFAULT_USERS;}
+  try{checklistTemplate=JSON.parse(localStorage.getItem("dlc_checklist")||"null")||DEFAULT_CHECKLIST;}catch{checklistTemplate=DEFAULT_CHECKLIST;}
+  const todayKey=todayStr();
+  try{checklistState=JSON.parse(localStorage.getItem("dlc_checklist_state_"+todayKey)||"{}");}catch{checklistState={};}
+}
+
+function saveUsers(){localStorage.setItem("dlc_users",JSON.stringify(users));}
+function saveChecklist(){
+  const todayKey=todayStr();
+  localStorage.setItem("dlc_checklist_state_"+todayKey,JSON.stringify(checklistState));
+}
+
+// Firebase real-time listeners
+function startFirebaseListeners(){
+  // Listen to products
+  window.fsOnSnapshot(window.fsCollection(window.db,"products"), snap => {
+    products = snap.docs.map(d=>({...d.data(), _docId:d.id}));
+    renderAll();
+  });
+  // Listen to deliveries
+  window.fsOnSnapshot(window.fsCollection(window.db,"deliveries"), snap => {
+    deliveries = snap.docs.map(d=>({...d.data(), _docId:d.id}));
+    if(currentTab==="delivery"||currentTab==="dashboard") renderTab();
+  });
+}
+
+async function saveProduct(p){
+  if(p._docId){
+    const {_docId,...data}=p;
+    await window.fsUpdateDoc(window.fsDoc(window.db,"products",_docId), data);
+  } else {
+    await window.fsAddDoc(window.fsCollection(window.db,"products"), p);
+  }
+}
+
+async function removeProduct(p){
+  if(p._docId) await window.fsDeleteDoc(window.fsDoc(window.db,"products",p._docId));
+}
+
+async function saveDeliveryDoc(d){
+  if(d._docId){
+    const {_docId,...data}=d;
+    await window.fsUpdateDoc(window.fsDoc(window.db,"deliveries",_docId), data);
+  } else {
+    await window.fsAddDoc(window.fsCollection(window.db,"deliveries"), d);
+  }
+}
+
+async function removeDelivery(d){
+  if(d._docId) await window.fsDeleteDoc(window.fsDoc(window.db,"deliveries",d._docId));
+}
+
+// Override add/retire/delete to use Firebase
+async function addProduct(){
+  const name=document.getElementById("fName").value.trim();
+  const dlc=document.getElementById("fDlc").value;
+  if(!name||!dlc){alert("Nom et DLC obligatoires !");return;}
+  const p={
+    id:Date.now(),name,category:document.getElementById("fCat").value,dlc,
+    quantity:document.getElementById("fQty").value,
+    unit:document.getElementById("fUnit").value,
+    price:parseFloat(document.getElementById("fPrice").value)||0,
+    lot:document.getElementById("fLot").value,
+    addedAt:new Date().toISOString(),
+    addedBy:currentUser?.name||"—",
+    retired:false,retiredAt:null,retireReason:null,retiredBy:null
+  };
+  await window.fsAddDoc(window.fsCollection(window.db,"products"), p);
+  ["fName","fDlc","fQty","fLot","fPrice"].forEach(id=>document.getElementById(id).value="");
+  closeModal("modalAdd");showToast("✅ Produit ajouté !");
+}
+
+async function retireProduct(reason){
+  const p=products.find(p=>p.id===retireTargetId);
+  if(p&&p._docId){
+    await window.fsUpdateDoc(window.fsDoc(window.db,"products",p._docId),{
+      retired:true,retiredAt:new Date().toISOString(),retireReason:reason,retiredBy:currentUser?.name||"—"
+    });
+  }
+  closeModal("modalRetire");showToast("🗑️ Produit retiré !");
+}
+
+async function deleteProduct(id){
+  const p=products.find(p=>p.id===id);
+  if(!confirm(`Supprimer "${p.name}" définitivement ?`))return;
+  if(p&&p._docId) await window.fsDeleteDoc(window.fsDoc(window.db,"products",p._docId));
+  showToast("🗑️ Supprimé !","#ef4444");
+}
+
+async function addDelivery(){
+  const supplier=document.getElementById("dSupplier").value.trim();
+  if(!supplier||!selectedDeliveryDays.length){alert("Fournisseur et au moins un jour obligatoires.");return;}
+  const cats=Array.from(document.getElementById("dCat").selectedOptions).map(o=>o.value);
+  const d={id:Date.now(),supplier,days:selectedDeliveryDays,time:document.getElementById("dTime").value,categories:cats};
+  await window.fsAddDoc(window.fsCollection(window.db,"deliveries"), d);
+  closeModal("modalDelivery");showToast("✅ Livraison ajoutée !");
+}
+
+async function deleteDelivery(id){
+  if(!confirm("Supprimer cette livraison ?"))return;
+  const d=deliveries.find(d=>d.id===id);
+  if(d&&d._docId) await window.fsDeleteDoc(window.fsDoc(window.db,"deliveries",d._docId));
+}
+
+function saveProducts(){} // No-op, Firebase handles it
+function saveDeliveries(){} // No-op, Firebase handles it
+
+// =====================
+// INIT
+// =====================
+window.initApp = function(){
+  load();
+  renderLogin();
+  startFirebaseListeners();
+};
+
+// If Firebase already loaded
+if(window.firebaseReady) window.initApp();
+// FIREBASE STORAGE
+// =====================
+function load(){
+  // Load users from localStorage (they are set per device for PIN security)
+  try{users=JSON.parse(localStorage.getItem("dlc_users")||"null")||DEFAULT_USERS;}catch{users=DEFAULT_USERS;}
+  try{checklistTemplate=JSON.parse(localStorage.getItem("dlc_checklist")||"null")||DEFAULT_CHECKLIST;}catch{checklistTemplate=DEFAULT_CHECKLIST;}
+  const todayKey=todayStr();
+  try{checklistState=JSON.parse(localStorage.getItem("dlc_checklist_state_"+todayKey)||"{}");}catch{checklistState={};}
+}
+
+function saveUsers(){localStorage.setItem("dlc_users",JSON.stringify(users));}
+function saveChecklist(){
+  const todayKey=todayStr();
+  localStorage.setItem("dlc_checklist_state_"+todayKey,JSON.stringify(checklistState));
+}
+
+// Firebase real-time listeners
+function startFirebaseListeners(){
+  // Listen to products
+  window.fsOnSnapshot(window.fsCollection(window.db,"products"), snap => {
+    products = snap.docs.map(d=>({...d.data(), _docId:d.id}));
+    renderAll();
+  });
+  // Listen to deliveries
+  window.fsOnSnapshot(window.fsCollection(window.db,"deliveries"), snap => {
+    deliveries = snap.docs.map(d=>({...d.data(), _docId:d.id}));
+    if(currentTab==="delivery"||currentTab==="dashboard") renderTab();
+  });
+}
+
+async function saveProduct(p){
+  if(p._docId){
+    const {_docId,...data}=p;
+    await window.fsUpdateDoc(window.fsDoc(window.db,"products",_docId), data);
+  } else {
+    await window.fsAddDoc(window.fsCollection(window.db,"products"), p);
+  }
+}
+
+async function removeProduct(p){
+  if(p._docId) await window.fsDeleteDoc(window.fsDoc(window.db,"products",p._docId));
+}
+
+async function saveDeliveryDoc(d){
+  if(d._docId){
+    const {_docId,...data}=d;
+    await window.fsUpdateDoc(window.fsDoc(window.db,"deliveries",_docId), data);
+  } else {
+    await window.fsAddDoc(window.fsCollection(window.db,"deliveries"), d);
+  }
+}
+
+async function removeDelivery(d){
+  if(d._docId) await window.fsDeleteDoc(window.fsDoc(window.db,"deliveries",d._docId));
+}
+
+// Override add/retire/delete to use Firebase
+async function addProduct(){
+  const name=document.getElementById("fName").value.trim();
+  const dlc=document.getElementById("fDlc").value;
+  if(!name||!dlc){alert("Nom et DLC obligatoires !");return;}
+  const p={
+    id:Date.now(),name,category:document.getElementById("fCat").value,dlc,
+    quantity:document.getElementById("fQty").value,
+    unit:document.getElementById("fUnit").value,
+    price:parseFloat(document.getElementById("fPrice").value)||0,
+    lot:document.getElementById("fLot").value,
+    addedAt:new Date().toISOString(),
+    addedBy:currentUser?.name||"—",
+    retired:false,retiredAt:null,retireReason:null,retiredBy:null
+  };
+  await window.fsAddDoc(window.fsCollection(window.db,"products"), p);
+  ["fName","fDlc","fQty","fLot","fPrice"].forEach(id=>document.getElementById(id).value="");
+  closeModal("modalAdd");showToast("✅ Produit ajouté !");
+}
+
+async function retireProduct(reason){
+  const p=products.find(p=>p.id===retireTargetId);
+  if(p&&p._docId){
+    await window.fsUpdateDoc(window.fsDoc(window.db,"products",p._docId),{
+      retired:true,retiredAt:new Date().toISOString(),retireReason:reason,retiredBy:currentUser?.name||"—"
+    });
+  }
+  closeModal("modalRetire");showToast("🗑️ Produit retiré !");
+}
+
+async function deleteProduct(id){
+  const p=products.find(p=>p.id===id);
+  if(!confirm(`Supprimer "${p.name}" définitivement ?`))return;
+  if(p&&p._docId) await window.fsDeleteDoc(window.fsDoc(window.db,"products",p._docId));
+  showToast("🗑️ Supprimé !","#ef4444");
+}
+
+async function addDelivery(){
+  const supplier=document.getElementById("dSupplier").value.trim();
+  if(!supplier||!selectedDeliveryDays.length){alert("Fournisseur et au moins un jour obligatoires.");return;}
+  const cats=Array.from(document.getElementById("dCat").selectedOptions).map(o=>o.value);
+  const d={id:Date.now(),supplier,days:selectedDeliveryDays,time:document.getElementById("dTime").value,categories:cats};
+  await window.fsAddDoc(window.fsCollection(window.db,"deliveries"), d);
+  closeModal("modalDelivery");showToast("✅ Livraison ajoutée !");
+}
+
+async function deleteDelivery(id){
+  if(!confirm("Supprimer cette livraison ?"))return;
+  const d=deliveries.find(d=>d.id===id);
+  if(d&&d._docId) await window.fsDeleteDoc(window.fsDoc(window.db,"deliveries",d._docId));
+}
+
+function saveProducts(){} // No-op, Firebase handles it
+function saveDeliveries(){} // No-op, Firebase handles it
+
+// =====================
+// INIT
+// =====================
+window.initApp = function(){
+  load();
+  renderLogin();
+  startFirebaseListeners();
+};
+
+// If Firebase already loaded
+if(window.firebaseReady) window.initApp();
 </script>
 </body>
 </html>
