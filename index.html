@@ -1,5 +1,1220 @@
-🍔
-Suivi DLC
-BK Barachois · K1444
-Qui es-tu ?
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Suivi DLC — BK Barachois K1444</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8fafc;min-height:100vh;}
+
+/* LOGIN */
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#c8102e,#8b0a1a);padding:24px;}
+.login-logo{font-size:48px;margin-bottom:8px;}
+.login-title{color:#fff;font-size:24px;font-weight:800;margin-bottom:4px;}
+.login-sub{color:rgba(255,255,255,0.7);font-size:13px;margin-bottom:32px;}
+.login-box{background:#fff;border-radius:20px;padding:28px;width:100%;max-width:340px;box-shadow:0 8px 40px rgba(0,0,0,0.2);}
+.login-box h3{font-size:16px;font-weight:700;color:#1e293b;margin-bottom:16px;}
+.user-btn{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;margin-bottom:10px;font-family:inherit;}
+.user-btn:hover{background:#f1f5f9;}
+.user-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;}
+.user-info{text-align:left;}
+.user-name{font-weight:700;font-size:14px;color:#1e293b;}
+.user-role{font-size:12px;color:#64748b;}
+.pin-screen{text-align:center;}
+.pin-display{font-size:28px;letter-spacing:12px;margin:16px 0;min-height:40px;color:#1e293b;}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0;}
+.pin-btn{padding:16px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit;color:#1e293b;}
+.pin-btn:hover{background:#e2e8f0;}
+.pin-del{background:#fee2e2;color:#dc2626;border-color:#fca5a5;}
+.pin-back{background:#f8fafc;color:#64748b;font-size:13px;margin-top:8px;width:100%;padding:10px;border-radius:10px;border:1px solid #e2e8f0;cursor:pointer;font-family:inherit;}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#c8102e,#8b0a1a);padding:14px 16px;color:#fff;}
+.header-inner{max-width:680px;margin:0 auto;}
+.header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.header-left{display:flex;align-items:center;gap:10px;}
+.header-subtitle{font-size:10px;opacity:.8;letter-spacing:2px;text-transform:uppercase;}
+.header-title{font-size:19px;font-weight:800;}
+.header-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.btn-h{background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:20px;padding:7px 12px;font-weight:700;font-size:12px;cursor:pointer;}
+.btn-h-main{background:#fff;color:#c8102e;border:none;border-radius:20px;padding:7px 14px;font-weight:700;font-size:12px;cursor:pointer;}
+.user-chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border-radius:20px;padding:5px 10px;font-size:12px;font-weight:700;}
+.notif-box{margin-top:10px;background:rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;font-size:13px;}
+
+/* TABS */
+.tabs{background:#fff;border-bottom:1px solid #e2e8f0;overflow-x:auto;}
+.tabs-inner{max-width:680px;margin:0 auto;display:flex;min-width:max-content;}
+.tab{padding:12px 10px;border:none;background:none;font-weight:600;font-size:12px;cursor:pointer;color:#64748b;border-bottom:3px solid transparent;white-space:nowrap;}
+.tab.active{color:#c8102e;border-bottom:3px solid #c8102e;}
+
+/* CONTENT */
+.content{max-width:680px;margin:0 auto;padding:14px 12px;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+@media(max-width:500px){.stats-grid{grid-template-columns:1fr 1fr;}}
+.stat-card{border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:4px;border:1px solid rgba(0,0,0,0.06);}
+.stat-icon{font-size:20px;}
+.stat-value{font-size:22px;font-weight:800;line-height:1;}
+.stat-label{font-size:11px;color:#64748b;}
+
+/* CARDS */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+.card.alert-warn{border:2px solid #fde047;}
+.card.alert-exp{border:2px solid #fca5a5;}
+.card-row{display:flex;align-items:flex-start;gap:10px;}
+.cat-icon-box{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.card-name{font-weight:700;font-size:14px;color:#1e293b;}
+.card-meta{font-size:11px;color:#64748b;margin-top:2px;}
+.card-by{font-size:10px;color:#94a3b8;margin-top:2px;}
+.card-actions{display:flex;gap:6px;margin-top:10px;}
+.btn-retire{flex:1;padding:7px;border-radius:7px;border:1px solid #e2e8f0;background:#f8fafc;color:#374151;font-weight:600;font-size:11px;cursor:pointer;}
+.btn-delete{padding:7px 10px;border-radius:7px;border:1px solid #fee2e2;background:#fff;color:#dc2626;font-weight:600;font-size:11px;cursor:pointer;}
+
+/* BADGES */
+.badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+.badge-ok{background:#dcfce7;color:#16a34a;border:1px solid #86efac;}
+.badge-alert{background:#fef9c3;color:#b45309;border:1px solid #fde047;}
+.badge-expired{background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;}
+.badge-retired{background:#f3f4f6;color:#6b7280;border:1px solid #d1d5db;}
+
+/* FILTERS */
+.filters{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px;}
+.filter-btn{padding:6px 12px;border-radius:20px;border:1px solid #e2e8f0;background:#fff;color:#64748b;font-weight:600;font-size:11px;cursor:pointer;white-space:nowrap;}
+.filter-btn.active{background:#c8102e;color:#fff;border-color:#c8102e;}
+.filter-btn-dark.active{background:#1e293b;color:#fff;border-color:#1e293b;}
+
+/* CAT ROW */
+.cat-row{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.cat-icon-lg{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.cat-alert-badge{background:#fee2e2;color:#dc2626;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;}
+
+/* ALERT CARDS */
+.alert-card{border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.alert-card-warn{background:#fffbeb;border:1px solid #fde047;}
+.alert-card-exp{background:#fef2f2;border:1px solid #fca5a5;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;align-items:center;justify-content:center;padding:14px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:18px;padding:24px;min-width:300px;max-width:440px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.18);max-height:92vh;overflow-y:auto;}
+.modal-title{font-weight:800;font-size:17px;color:#1e293b;margin-bottom:16px;}
+.modal-sub{font-size:13px;color:#64748b;margin-bottom:16px;margin-top:-10px;}
+
+/* FORM */
+.form-group{margin-bottom:10px;}
+.form-label{font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:3px;}
+.form-input,.form-select{display:block;width:100%;padding:9px 11px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;font-family:inherit;background:#fff;}
+.form-row{display:flex;gap:8px;}
+.form-actions{display:flex;gap:8px;margin-top:12px;}
+.btn-cancel{flex:1;padding:10px;border-radius:9px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;font-weight:700;font-size:13px;cursor:pointer;}
+.btn-save{flex:2;padding:10px;border-radius:9px;border:none;background:#c8102e;color:#fff;font-weight:800;font-size:13px;cursor:pointer;}
+.btn-blue{width:100%;padding:10px;border-radius:9px;border:none;background:#2563eb;color:#fff;font-weight:700;font-size:13px;cursor:pointer;}
+.btn-green{width:100%;padding:10px;border-radius:9px;border:none;background:#16a34a;color:#fff;font-weight:700;font-size:13px;cursor:pointer;}
+.retire-option{display:block;width:100%;margin-bottom:7px;padding:10px;border-radius:9px;border:1px solid #e2e8f0;background:#f8fafc;color:#1e293b;font-weight:600;font-size:13px;cursor:pointer;text-align:left;font-family:inherit;}
+
+/* BACKUP */
+.backup-section{border-radius:10px;padding:14px;margin-bottom:12px;}
+.backup-section-blue{background:#eff6ff;border:1px solid #bfdbfe;}
+.backup-section-green{background:#f0fdf4;border:1px solid #bbf7d0;}
+.backup-title{font-weight:700;font-size:13px;margin-bottom:5px;}
+.backup-desc{font-size:12px;color:#374151;margin-bottom:10px;}
+.backup-tip{background:#fefce8;border:1px solid #fde047;border-radius:9px;padding:10px;font-size:12px;color:#713f12;margin-bottom:14px;}
+.file-label{display:block;width:100%;padding:10px;border-radius:9px;border:2px dashed #4ade80;background:#fff;font-weight:700;font-size:12px;cursor:pointer;text-align:center;color:#15803d;}
+
+/* TOAST */
+.toast{display:none;position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;border-radius:12px;padding:10px 20px;font-weight:700;font-size:13px;z-index:300;box-shadow:0 4px 20px rgba(0,0,0,0.2);white-space:nowrap;}
+.toast.show{display:block;}
+
+/* INFO BOX */
+.info-box{background:#f8fafc;border-radius:9px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:#374151;}
+.empty{text-align:center;color:#94a3b8;padding:32px;font-size:14px;}
+.section-title{font-weight:700;color:#1e293b;margin-bottom:8px;font-size:14px;}
+.section-title-red{font-weight:700;color:#dc2626;margin-bottom:8px;margin-top:8px;font-size:14px;}
+.export-card{margin-top:16px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.btn-red{background:#c8102e;color:#fff;border:none;border-radius:9px;padding:9px 14px;font-weight:700;font-size:12px;cursor:pointer;}
+
+/* STATS CHART */
+.chart-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.chart-bar-label{font-size:12px;color:#64748b;width:80px;flex-shrink:0;}
+.chart-bar-bg{flex:1;background:#f1f5f9;border-radius:6px;height:20px;overflow:hidden;}
+.chart-bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:#fff;min-width:24px;transition:width .5s;}
+.chart-bar-val{font-size:12px;font-weight:700;color:#374151;width:30px;text-align:right;flex-shrink:0;}
+
+/* DELIVERY */
+.delivery-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.delivery-day{width:48px;height:48px;border-radius:10px;background:#eff6ff;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.delivery-day-num{font-size:18px;font-weight:800;color:#2563eb;line-height:1;}
+.delivery-day-name{font-size:9px;color:#64748b;text-transform:uppercase;}
+.delivery-badge{background:#dbeafe;color:#1d4ed8;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;}
+
+/* CHECKLIST */
+.checklist-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:7px;cursor:pointer;}
+.checklist-item.done{background:#f0fdf4;border-color:#bbf7d0;opacity:.7;}
+.checklist-check{width:22px;height:22px;border-radius:50%;border:2px solid #d1d5db;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;}
+.checklist-item.done .checklist-check{background:#16a34a;border-color:#16a34a;color:#fff;}
+.checklist-label{font-size:13px;font-weight:600;color:#1e293b;flex:1;}
+.checklist-item.done .checklist-label{text-decoration:line-through;color:#94a3b8;}
+.checklist-meta{font-size:11px;color:#94a3b8;}
+
+/* SCANNER */
+#scannerVideo{width:100%;border-radius:12px;background:#000;}
+.scan-result-box{background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px;margin-top:10px;font-size:13px;color:#15803d;font-weight:600;}
+
+/* MANAGE USERS */
+.manage-user-row{display:flex;align-items:center;gap:10px;padding:10px;background:#f8fafc;border-radius:10px;margin-bottom:7px;}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-logo">🍔</div>
+  <div class="login-title">Suivi DLC</div>
+  <div class="login-sub">BK Barachois · K1444</div>
+  <div class="login-box" id="loginBox">
+    <h3>Qui es-tu ?</h3>
+    <div id="userList"></div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="app" style="display:none">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="header-left">
+        <div>
+          <div class="header-subtitle">🍔 BK Barachois · K1444</div>
+          <div class="header-title">Suivi DLC</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="user-chip" id="userChip">👤 —</div>
+        <button class="btn-h" onclick="openModal('modalExport')">📊</button>
+        <button class="btn-h" onclick="openModal('modalBackup')">💾</button>
+        <button class="btn-h" onclick="logout()" title="Déconnexion">🔒</button>
+        <button class="btn-h-main" onclick="openModal('modalAdd')">+ Ajouter</button>
+      </div>
+    </div>
+    <div class="notif-box" id="notifBox" style="display:none"></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tabs-inner">
+    <button class="tab active" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
+    <button class="tab" onclick="switchTab('products',this)">📋 Produits</button>
+    <button class="tab" onclick="switchTab('stats',this)">📈 Stats</button>
+    <button class="tab" onclick="switchTab('delivery',this)">🚛 Livraisons</button>
+    <button class="tab" onclick="switchTab('checklist',this)">✅ HACCP</button>
+    <button class="tab" onclick="switchTab('history',this)">🗂️ Historique</button>
+  </div>
+</div>
+
+<div class="content">
+  <div id="tab-dashboard"></div>
+  <div id="tab-products" style="display:none"></div>
+  <div id="tab-stats" style="display:none"></div>
+  <div id="tab-delivery" style="display:none"></div>
+  <div id="tab-checklist" style="display:none"></div>
+  <div id="tab-history" style="display:none"></div>
+</div>
+
+</div><!-- end app -->
+
+<!-- ===== MODALS ===== -->
+
+<!-- MODAL ADD -->
+<div class="modal-overlay" id="modalAdd" onclick="closeModalOutside(event,'modalAdd')">
+  <div class="modal-box">
+    <div class="modal-title">➕ Ajouter un produit</div>
+    <div class="form-group">
+      <label class="form-label">Nom du produit *</label>
+      <div style="display:flex;gap:6px">
+        <input class="form-input" id="fName" placeholder="ex: Steaks frais..." style="flex:1"/>
+        <button class="btn-red" onclick="openScanner()" title="Scanner le code-barre" style="padding:9px 12px;border-radius:8px">📷</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Catégorie *</label>
+      <select class="form-select" id="fCat">
+        <option value="surgeles">❄️ Surgelés</option>
+        <option value="frais">🥩 Frais</option>
+        <option value="sec">📦 Sec / Ambiant</option>
+        <option value="boissons">🥤 Boissons</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date DLC *</label>
+      <input class="form-input" id="fDlc" type="date"/>
+    </div>
+    <div class="form-group">
+      <div class="form-row">
+        <div style="flex:1">
+          <label class="form-label">Quantité</label>
+          <input class="form-input" id="fQty" type="number" placeholder="0"/>
+        </div>
+        <div>
+          <label class="form-label">Unité</label>
+          <select class="form-select" id="fUnit" style="width:auto">
+            <option>kg</option><option>g</option><option>L</option>
+            <option>pièce(s)</option><option>carton(s)</option><option>sac(s)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Prix unitaire (€) — pour calcul des pertes</label>
+      <input class="form-input" id="fPrice" type="number" step="0.01" placeholder="0.00"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">N° de lot</label>
+      <input class="form-input" id="fLot" placeholder="ex: LOT-2024-001"/>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal('modalAdd')">Annuler</button>
+      <button class="btn-save" onclick="addProduct()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SCANNER -->
+<div class="modal-overlay" id="modalScanner" onclick="closeModalOutside(event,'modalScanner')">
+  <div class="modal-box">
+    <div class="modal-title">📷 Scanner un code-barre</div>
+    <div class="modal-sub">Pointe la caméra vers le code-barre du produit</div>
+    <video id="scannerVideo" autoplay playsinline></video>
+    <div id="scanResult" style="display:none" class="scan-result-box"></div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn-cancel" onclick="stopScanner()">Fermer</button>
+      <button class="btn-save" id="btnUseScan" style="display:none" onclick="useScanResult()">Utiliser ce produit</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RETIRE -->
+<div class="modal-overlay" id="modalRetire" onclick="closeModalOutside(event,'modalRetire')">
+  <div class="modal-box">
+    <div class="modal-title" id="retireTitle">🗑️ Retirer le produit</div>
+    <div class="modal-sub">Raison du retrait :</div>
+    <button class="retire-option" onclick="retireProduct('DLC dépassée')">→ DLC dépassée</button>
+    <button class="retire-option" onclick="retireProduct('Produit abîmé')">→ Produit abîmé</button>
+    <button class="retire-option" onclick="retireProduct('Erreur de commande')">→ Erreur de commande</button>
+    <button class="retire-option" onclick="retireProduct('Autre')">→ Autre</button>
+    <button class="btn-cancel" style="width:100%;margin-top:4px" onclick="closeModal('modalRetire')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL EXPORT -->
+<div class="modal-overlay" id="modalExport" onclick="closeModalOutside(event,'modalExport')">
+  <div class="modal-box">
+    <div class="modal-title">📊 Export Excel — Pertes</div>
+    <div class="modal-sub">Rapport HACCP mensuel</div>
+    <div class="form-group">
+      <label class="form-label">Mois à exporter</label>
+      <input class="form-input" id="exportMonth" type="month"/>
+    </div>
+    <div class="info-box">
+      📋 <strong>Feuille 1</strong> : détail des pertes (produit, DLC, raison, responsable…)<br/>
+      📊 <strong>Feuille 2</strong> : résumé + coût estimé des pertes
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal('modalExport')">Annuler</button>
+      <button class="btn-save" onclick="exportExcel()">⬇️ Télécharger</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BACKUP -->
+<div class="modal-overlay" id="modalBackup" onclick="closeModalOutside(event,'modalBackup')">
+  <div class="modal-box">
+    <div class="modal-title">💾 Sauvegarde & Restauration</div>
+    <div class="backup-section backup-section-blue">
+      <div class="backup-title" style="color:#1d4ed8">⬇️ Sauvegarder</div>
+      <div class="backup-desc">Télécharge un fichier .json avec toutes tes données.</div>
+      <button class="btn-blue" onclick="backupData()" id="btnBackupDl">⬇️ Télécharger la sauvegarde</button>
+    </div>
+    <div class="backup-section backup-section-green">
+      <div class="backup-title" style="color:#15803d">⬆️ Restaurer</div>
+      <div class="backup-desc">Importe un fichier de sauvegarde.<br/><span style="color:#dc2626;font-weight:600">⚠️ Remplace les données actuelles.</span></div>
+      <label class="file-label">📂 Choisir un fichier .json<input type="file" accept=".json" onchange="restoreData(event)" style="display:none"/></label>
+    </div>
+    <div class="backup-tip">💡 Fais une sauvegarde hebdomadaire dans ton Google Drive.</div>
+    <button class="btn-cancel" style="width:100%" onclick="closeModal('modalBackup')">Fermer</button>
+  </div>
+</div>
+
+<!-- MODAL ADD DELIVERY -->
+<div class="modal-overlay" id="modalDelivery" onclick="closeModalOutside(event,'modalDelivery')">
+  <div class="modal-box">
+    <div class="modal-title">🚛 Ajouter une livraison</div>
+    <div class="form-group">
+      <label class="form-label">Fournisseur *</label>
+      <input class="form-input" id="dSupplier" placeholder="ex: Sysco, Martin Brower..."/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Jour(s) de livraison *</label>
+      <div id="dayPicker" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+        ${['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map((d,i)=>
+          `<button type="button" class="filter-btn" onclick="toggleDay(${i},this)" data-day="${i}">${d}</button>`
+        ).join('')}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Heure estimée</label>
+      <input class="form-input" id="dTime" type="time" value="07:00"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Catégories livrées</label>
+      <select class="form-select" id="dCat" multiple style="height:80px">
+        <option value="surgeles">❄️ Surgelés</option>
+        <option value="frais">🥩 Frais</option>
+        <option value="sec">📦 Sec / Ambiant</option>
+        <option value="boissons">🥤 Boissons</option>
+      </select>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal('modalDelivery')">Annuler</button>
+      <button class="btn-save" onclick="addDelivery()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MANAGE USERS (admin only) -->
+<div class="modal-overlay" id="modalUsers" onclick="closeModalOutside(event,'modalUsers')">
+  <div class="modal-box">
+    <div class="modal-title">👥 Gérer les utilisateurs</div>
+    <div id="userManageList"></div>
+    <div style="margin-top:14px;border-top:1px solid #e2e8f0;padding-top:14px">
+      <div class="form-group">
+        <label class="form-label">Nom *</label>
+        <input class="form-input" id="nuName" placeholder="Prénom"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rôle</label>
+        <select class="form-select" id="nuRole">
+          <option value="directeur">Directeur</option>
+          <option value="manager">Manager</option>
+          <option value="leader">Leader</option>
+          <option value="equipier">Équipier</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Code PIN (4 chiffres) *</label>
+        <input class="form-input" id="nuPin" type="password" maxlength="4" placeholder="****"/>
+      </div>
+      <button class="btn-green" onclick="addUser()">+ Ajouter l'utilisateur</button>
+    </div>
+    <button class="btn-cancel" style="width:100%;margin-top:10px" onclick="closeModal('modalUsers')">Fermer</button>
+  </div>
+</div>
+
+<script>
+// =====================
+// DATA
+// =====================
+const CATEGORIES = {
+  surgeles:{label:"Surgelés",icon:"❄️",color:"#3b82f6",bg:"#eff6ff"},
+  frais:{label:"Frais",icon:"🥩",color:"#10b981",bg:"#ecfdf5"},
+  sec:{label:"Sec / Ambiant",icon:"📦",color:"#f59e0b",bg:"#fffbeb"},
+  boissons:{label:"Boissons",icon:"🥤",color:"#8b5cf6",bg:"#f5f3ff"},
+};
+const DAYS_FR = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
+const DAYS_SHORT = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
+const ALERT_DAYS = 7;
+
+let products=[], deliveries=[], checklistTemplate=[], checklistState={}, users=[];
+let currentTab="dashboard", filterCat="all", filterStatus="all";
+let retireTargetId=null, currentUser=null, pinBuffer="", pinTargetUser=null;
+let scanStream=null, lastScanCode="";
+let selectedDeliveryDays=[];
+
+const DEFAULT_USERS = [
+  {id:1,name:"Nyas",role:"directeur",pin:"1283",avatar:"👑",color:"#c8102e"},
+  {id:2,name:"Kevin",role:"directeur",pin:"2014",avatar:"⭐",color:"#2563eb"},
+];
+
+const DEFAULT_CHECKLIST = [
+  {id:"c1",label:"Vérification températures chambres froides",category:"ouverture"},
+  {id:"c2",label:"Contrôle DLC produits frais en stock",category:"ouverture"},
+  {id:"c3",label:"Nettoyage et désinfection plan de travail",category:"ouverture"},
+  {id:"c4",label:"Vérification dates des sauces ouvertes",category:"ouverture"},
+  {id:"c5",label:"Rotation des stocks (FIFO)",category:"ouverture"},
+  {id:"c6",label:"Nettoyage friteuses",category:"fermeture"},
+  {id:"c7",label:"Nettoyage grill",category:"fermeture"},
+  {id:"c8",label:"Retrait et étiquetage produits entamés",category:"fermeture"},
+  {id:"c9",label:"Vérification portes chambres froides",category:"fermeture"},
+  {id:"c10",label:"Relevé températures fin de service",category:"fermeture"},
+];
+
+// =====================
+// STORAGE
+// =====================
+function load(){
+  try{products=JSON.parse(localStorage.getItem("dlc_products")||"[]");}catch{products=[];}
+  try{deliveries=JSON.parse(localStorage.getItem("dlc_deliveries")||"[]");}catch{deliveries=[];}
+  try{users=JSON.parse(localStorage.getItem("dlc_users")||"null")||DEFAULT_USERS;}catch{users=DEFAULT_USERS;}
+  try{checklistTemplate=JSON.parse(localStorage.getItem("dlc_checklist")||"null")||DEFAULT_CHECKLIST;}catch{checklistTemplate=DEFAULT_CHECKLIST;}
+  const todayKey=todayStr();
+  try{checklistState=JSON.parse(localStorage.getItem("dlc_checklist_state_"+todayKey)||"{}");}catch{checklistState={};}
+}
+function saveProducts(){localStorage.setItem("dlc_products",JSON.stringify(products));}
+function saveDeliveries(){localStorage.setItem("dlc_deliveries",JSON.stringify(deliveries));}
+function saveUsers(){localStorage.setItem("dlc_users",JSON.stringify(users));}
+function saveChecklist(){
+  const todayKey=todayStr();
+  localStorage.setItem("dlc_checklist_state_"+todayKey,JSON.stringify(checklistState));
+}
+function todayStr(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`;}
+
+// =====================
+// AUTH
+// =====================
+function renderLogin(){
+  const ul=document.getElementById("userList");
+  ul.innerHTML=users.map(u=>`
+    <button class="user-btn" onclick="selectUser(${u.id})">
+      <div class="user-avatar" style="background:${u.color}">${u.avatar}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name}</div>
+        <div class="user-role">${u.role==="directeur"?"Directeur":u.role==="manager"?"Manager":u.role==="leader"?"Leader":"Équipier"}</div>
+      </div>
+    </button>
+  `).join("")+(currentUser&&(currentUser.role==="directeur"||currentUser.role==="manager")?`<button class="user-btn" onclick="openModal('modalUsers')" style="border-color:#c8102e"><div class="user-avatar" style="background:#64748b">⚙️</div><div class="user-info"><div class="user-name">Gérer les utilisateurs</div></div></button>`:``);
+}
+
+function selectUser(id){
+  const u=users.find(x=>x.id===id);
+  pinTargetUser=u; pinBuffer="";
+  document.getElementById("loginBox").innerHTML=`
+    <div class="pin-screen">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <button onclick="renderLoginBox()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748b">←</button>
+        <div style="font-weight:700;color:#1e293b;font-size:15px">${u.avatar} ${u.name}</div>
+      </div>
+      <div class="form-label">Entrez votre PIN</div>
+      <div class="pin-display" id="pinDisplay">·  ·  ·  ·</div>
+      <div class="pin-grid">
+        ${[1,2,3,4,5,6,7,8,9,"",0,"⌫"].map(k=>
+          k===""?`<div></div>`:`<button class="pin-btn ${k==="⌫"?"pin-del":""}" onclick="pinPress('${k}')">${k}</button>`
+        ).join("")}
+      </div>
+    </div>`;
+}
+
+function pinPress(k){
+  if(k==="⌫"){pinBuffer=pinBuffer.slice(0,-1);}
+  else if(pinBuffer.length<4){pinBuffer+=k;}
+  const disp=document.getElementById("pinDisplay");
+  if(disp) disp.textContent="● ".repeat(pinBuffer.length)+"·  ".repeat(4-pinBuffer.length);
+  if(pinBuffer.length===4) setTimeout(checkPin,200);
+}
+
+function checkPin(){
+  if(pinBuffer===pinTargetUser.pin){
+    currentUser=pinTargetUser;
+    document.getElementById("loginScreen").style.display="none";
+    document.getElementById("app").style.display="";
+    document.getElementById("userChip").textContent=`${currentUser.avatar} ${currentUser.name}`;
+    renderAll();
+  } else {
+    pinBuffer="";
+    const disp=document.getElementById("pinDisplay");
+    if(disp){disp.textContent="❌ PIN incorrect";disp.style.color="#dc2626";}
+    setTimeout(()=>{if(disp){disp.textContent="·  ·  ·  ·";disp.style.color="#1e293b";}},1200);
+  }
+}
+
+function renderLoginBox(){
+  document.getElementById("loginBox").innerHTML=`<h3>Qui es-tu ?</h3><div id="userList"></div>`;
+  renderLogin();
+}
+
+function logout(){
+  currentUser=null; pinBuffer=""; pinTargetUser=null;
+  document.getElementById("app").style.display="none";
+  document.getElementById("loginScreen").style.display="flex";
+  renderLoginBox();
+}
+
+// =====================
+// USER MANAGEMENT
+// =====================
+function renderUserManage(){
+  const list=document.getElementById("userManageList");
+  if(!list)return;
+  list.innerHTML=users.map(u=>`
+    <div class="manage-user-row">
+      <div class="user-avatar" style="background:${u.color};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff">${u.avatar}</div>
+      <div style="flex:1"><div style="font-weight:700;font-size:13px">${u.name}</div><div style="font-size:11px;color:#64748b">${u.role}</div></div>
+      ${u.id!==currentUser?.id?`<button class="btn-delete" style="font-size:11px;padding:5px 8px" onclick="removeUser(${u.id})">Retirer</button>`:`<span style="font-size:11px;color:#94a3b8">Moi</span>`}
+    </div>`).join("");
+}
+function addUser(){
+  const name=document.getElementById("nuName").value.trim();
+  const pin=document.getElementById("nuPin").value.trim();
+  if(!name||pin.length!==4){alert("Nom et PIN 4 chiffres obligatoires.");return;}
+  const colors=["#c8102e","#2563eb","#16a34a","#f59e0b","#8b5cf6","#ec4899"];
+  const avatars=["😊","🌟","🔥","💪","🎯","🚀"];
+  const id=Date.now();
+  users.push({id,name,role:document.getElementById("nuRole").value,pin,avatar:avatars[users.length%avatars.length],color:colors[users.length%colors.length]});
+  saveUsers();
+  document.getElementById("nuName").value="";document.getElementById("nuPin").value="";
+  renderUserManage();
+  showToast("✅ Utilisateur ajouté !");
+}
+function removeUser(id){
+  if(!confirm("Retirer cet utilisateur ?"))return;
+  users=users.filter(u=>u.id!==id);saveUsers();renderUserManage();
+}
+
+// =====================
+// DATES & STATUS
+// =====================
+function getDaysLeft(dlc){
+  const t=new Date();t.setHours(0,0,0,0);
+  const e=new Date(dlc);e.setHours(0,0,0,0);
+  return Math.floor((e-t)/(1000*60*60*24));
+}
+function getStatus(p){
+  if(p.retired)return"retired";
+  const d=getDaysLeft(p.dlc);
+  if(d<0)return"expired";if(d<=ALERT_DAYS)return"alert";return"ok";
+}
+function badge(status,daysLeft){
+  const cfgs={
+    ok:{label:`J-${daysLeft}`,cls:"badge-ok"},
+    alert:{label:daysLeft===0?"Expire aujourd'hui !":`⚠️ J-${daysLeft}`,cls:"badge-alert"},
+    expired:{label:`Expiré (J+${Math.abs(daysLeft)})`,cls:"badge-expired"},
+    retired:{label:"Retiré",cls:"badge-retired"},
+  };
+  const c=cfgs[status];
+  return`<span class="badge ${c.cls}">${c.label}</span>`;
+}
+
+// =====================
+// TABS
+// =====================
+function switchTab(tab,el){
+  currentTab=tab;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
+  ["dashboard","products","stats","delivery","checklist","history"].forEach(t=>{
+    document.getElementById("tab-"+t).style.display=t===tab?"":"none";
+  });
+  renderTab();
+}
+
+// =====================
+// MODALS
+// =====================
+function openModal(id){
+  document.getElementById(id).classList.add("open");
+  if(id==="modalExport"){const n=new Date();document.getElementById("exportMonth").value=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}`;}
+  if(id==="modalBackup"){const n=products.length;document.getElementById("btnBackupDl").textContent=`⬇️ Télécharger la sauvegarde (${n} produit${n>1?"s":""})`;}
+  if(id==="modalUsers"){renderUserManage();}
+  if(id==="modalDelivery"){selectedDeliveryDays=[];}
+}
+function closeModal(id){document.getElementById(id).classList.remove("open");}
+function closeModalOutside(e,id){if(e.target.id===id)closeModal(id);}
+
+// =====================
+// TOAST
+// =====================
+function showToast(msg,color="#10b981"){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.style.background=color;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),3000);
+}
+
+// =====================
+// SCANNER
+// =====================
+function openScanner(){
+  openModal("modalScanner");
+  document.getElementById("scanResult").style.display="none";
+  document.getElementById("btnUseScan").style.display="none";
+  lastScanCode="";
+  if(!("BarcodeDetector" in window)){
+    document.getElementById("scanResult").style.display="block";
+    document.getElementById("scanResult").textContent="⚠️ Scanner non supporté sur ce navigateur. Utilise Chrome sur Android ou Safari iOS 17+.";
+    document.getElementById("scanResult").style.background="#fef2f2";
+    document.getElementById("scanResult").style.color="#dc2626";
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).then(stream=>{
+    scanStream=stream;
+    const video=document.getElementById("scannerVideo");
+    video.srcObject=stream;
+    const detector=new BarcodeDetector({formats:["ean_13","ean_8","code_128","qr_code"]});
+    const scan=()=>{
+      if(!scanStream)return;
+      detector.detect(video).then(codes=>{
+        if(codes.length>0&&codes[0].rawValue!==lastScanCode){
+          lastScanCode=codes[0].rawValue;
+          document.getElementById("scanResult").style.display="block";
+          document.getElementById("scanResult").style.background="#f0fdf4";
+          document.getElementById("scanResult").style.color="#15803d";
+          document.getElementById("scanResult").textContent=`✅ Code scanné : ${lastScanCode}`;
+          document.getElementById("btnUseScan").style.display="block";
+        }
+      }).catch(()=>{});
+      setTimeout(scan,500);
+    };
+    scan();
+  }).catch(()=>{
+    document.getElementById("scanResult").style.display="block";
+    document.getElementById("scanResult").textContent="❌ Impossible d'accéder à la caméra.";
+    document.getElementById("scanResult").style.background="#fef2f2";
+    document.getElementById("scanResult").style.color="#dc2626";
+  });
+}
+function stopScanner(){
+  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
+  closeModal("modalScanner");
+}
+function useScanResult(){
+  if(lastScanCode){
+    document.getElementById("fLot").value=lastScanCode;
+    showToast("✅ Code enregistré dans le champ N° de lot");
+  }
+  stopScanner();
+  openModal("modalAdd");
+}
+
+// =====================
+// PRODUCTS
+// =====================
+function addProduct(){
+  const name=document.getElementById("fName").value.trim();
+  const dlc=document.getElementById("fDlc").value;
+  if(!name||!dlc){alert("Nom et DLC obligatoires !");return;}
+  products.push({
+    id:Date.now(),name,category:document.getElementById("fCat").value,dlc,
+    quantity:document.getElementById("fQty").value,
+    unit:document.getElementById("fUnit").value,
+    price:parseFloat(document.getElementById("fPrice").value)||0,
+    lot:document.getElementById("fLot").value,
+    addedAt:new Date().toISOString(),
+    addedBy:currentUser?.name||"—",
+    retired:false,retiredAt:null,retireReason:null,retiredBy:null
+  });
+  saveProducts();
+  ["fName","fDlc","fQty","fLot","fPrice"].forEach(id=>document.getElementById(id).value="");
+  closeModal("modalAdd");showToast("✅ Produit ajouté !");renderAll();
+}
+
+function openRetire(id){
+  retireTargetId=id;
+  const p=products.find(p=>p.id===id);
+  document.getElementById("retireTitle").textContent=`🗑️ Retirer "${p.name}"`;
+  openModal("modalRetire");
+}
+function retireProduct(reason){
+  products=products.map(p=>p.id===retireTargetId?{...p,retired:true,retiredAt:new Date().toISOString(),retireReason:reason,retiredBy:currentUser?.name||"—"}:p);
+  saveProducts();closeModal("modalRetire");showToast("🗑️ Produit retiré !");renderAll();
+}
+function deleteProduct(id){
+  const p=products.find(p=>p.id===id);
+  if(!confirm(`Supprimer "${p.name}" définitivement ?`))return;
+  products=products.filter(p=>p.id!==id);saveProducts();showToast("🗑️ Supprimé !","#ef4444");renderAll();
+}
+
+// =====================
+// DELIVERY
+// =====================
+function toggleDay(i,btn){
+  if(selectedDeliveryDays.includes(i)){
+    selectedDeliveryDays=selectedDeliveryDays.filter(d=>d!==i);
+    btn.classList.remove("active");
+  } else {
+    selectedDeliveryDays.push(i);
+    btn.classList.add("active");
+  }
+}
+function addDelivery(){
+  const supplier=document.getElementById("dSupplier").value.trim();
+  if(!supplier||!selectedDeliveryDays.length){alert("Fournisseur et au moins un jour obligatoires.");return;}
+  const cats=Array.from(document.getElementById("dCat").selectedOptions).map(o=>o.value);
+  deliveries.push({id:Date.now(),supplier,days:selectedDeliveryDays,time:document.getElementById("dTime").value,categories:cats});
+  saveDeliveries();closeModal("modalDelivery");showToast("✅ Livraison ajoutée !");renderDelivery();
+}
+function deleteDelivery(id){
+  if(!confirm("Supprimer cette livraison ?"))return;
+  deliveries=deliveries.filter(d=>d.id!==id);saveDeliveries();renderDelivery();
+}
+
+// =====================
+// CHECKLIST
+// =====================
+function toggleChecklistItem(id){
+  if(checklistState[id]){delete checklistState[id];}
+  else{checklistState[id]={by:currentUser?.name||"—",at:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})};}
+  saveChecklist();renderChecklist();
+}
+function resetChecklist(){
+  if(!confirm("Réinitialiser la checklist du jour ?"))return;
+  checklistState={};saveChecklist();renderChecklist();
+}
+
+// =====================
+// EXPORT EXCEL
+// =====================
+function exportExcel(){
+  const val=document.getElementById("exportMonth").value;
+  if(!val){alert("Sélectionne un mois.");return;}
+  const [year,month]=val.split("-").map(Number);
+  const losses=products.filter(p=>{
+    const s=getStatus(p);
+    if(!p.retired&&s!=="expired")return false;
+    const d=p.retiredAt?new Date(p.retiredAt):new Date(p.dlc);
+    return d.getFullYear()===year&&d.getMonth()+1===month;
+  });
+  if(!losses.length){alert("Aucune perte pour ce mois.");return;}
+  const monthLabel=new Date(year,month-1).toLocaleString("fr-FR",{month:"long",year:"numeric"});
+  const totalCost=losses.reduce((s,p)=>s+(p.price||0)*(p.quantity||1),0);
+  const rows=losses.map(p=>({
+    "Produit":p.name,
+    "Catégorie":CATEGORIES[p.category]?.label||p.category,
+    "DLC":new Date(p.dlc).toLocaleDateString("fr-FR"),
+    "Quantité":p.quantity?`${p.quantity} ${p.unit}`:"-",
+    "Prix unit.":p.price?`${p.price}€`:"-",
+    "Coût estimé":p.price&&p.quantity?`${(p.price*p.quantity).toFixed(2)}€`:"-",
+    "N° de lot":p.lot||"-",
+    "Ajouté par":p.addedBy||"-",
+    "Date retrait":p.retiredAt?new Date(p.retiredAt).toLocaleDateString("fr-FR"):"-",
+    "Retiré par":p.retiredBy||"-",
+    "Raison":p.retireReason||(getDaysLeft(p.dlc)<0?"DLC dépassée":"-"),
+    "Statut":p.retired?"Retiré":"Expiré",
+  }));
+  const catSummary=Object.entries(CATEGORIES).map(([id,cat])=>{
+    const cl=losses.filter(p=>p.category===id);
+    const cost=cl.reduce((s,p)=>s+(p.price||0)*(p.quantity||1),0);
+    return{"Catégorie":cat.label,"Nb pertes":cl.length,"Coût estimé":`${cost.toFixed(2)}€`};
+  }).filter(r=>r["Nb pertes"]>0);
+  const wb=XLSX.utils.book_new();
+  const wsD=XLSX.utils.json_to_sheet(rows);
+  wsD["!cols"]=[{wch:22},{wch:14},{wch:12},{wch:10},{wch:10},{wch:12},{wch:16},{wch:14},{wch:14},{wch:14},{wch:22},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,wsD,"Détail pertes");
+  const infoRows=[
+    {"Info":"Restaurant","Valeur":"Burger King Barachois - K1444"},
+    {"Info":"Période","Valeur":monthLabel},
+    {"Info":"Export le","Valeur":new Date().toLocaleDateString("fr-FR")},
+    {"Info":"Nb pertes","Valeur":losses.length},
+    {"Info":"Coût total estimé","Valeur":`${totalCost.toFixed(2)} €`},
+    {"Info":"","Valeur":""},
+    {"Info":"--- Par catégorie ---","Valeur":""},
+    ...catSummary.map(r=>({"Info":r["Catégorie"],"Valeur":r["Nb pertes"]+" perte(s) — "+r["Coût estimé"]}))
+  ];
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(infoRows),"Résumé");
+  XLSX.writeFile(wb,`DLC_Pertes_${monthLabel.replace(" ","_")}_K1444.xlsx`);
+  closeModal("modalExport");showToast("✅ Export téléchargé !");
+}
+
+// =====================
+// BACKUP
+// =====================
+function backupData(){
+  const data={version:2,exportedAt:new Date().toISOString(),restaurant:"K1444",products,deliveries,users};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;
+  a.download=`DLC_Sauvegarde_K1444_${new Date().toLocaleDateString("fr-FR").replace(/\//g,"-")}.json`;
+  a.click();URL.revokeObjectURL(url);showToast("✅ Sauvegarde téléchargée !");
+}
+function restoreData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const parsed=JSON.parse(ev.target.result);
+      if(!parsed.products||!Array.isArray(parsed.products))throw new Error();
+      const dateStr=new Date(parsed.exportedAt).toLocaleDateString("fr-FR");
+      if(!confirm(`Restaurer ${parsed.products.length} produit(s) depuis la sauvegarde du ${dateStr} ?\n\nCela remplacera toutes les données actuelles.`))return;
+      products=parsed.products;
+      if(parsed.deliveries)deliveries=parsed.deliveries;
+      if(parsed.users)users=parsed.users;
+      saveProducts();saveDeliveries();saveUsers();
+      closeModal("modalBackup");showToast("✅ Données restaurées !");renderAll();
+    }catch{alert("❌ Fichier invalide.");}
+  };
+  reader.readAsText(file);e.target.value="";
+}
+
+// =====================
+// RENDER
+// =====================
+function renderAll(){renderNotifications();renderTab();}
+
+function renderNotifications(){
+  const alerts=products.filter(p=>{const s=getStatus(p);return s==="alert"||s==="expired";});
+  const box=document.getElementById("notifBox");
+  if(!box)return;
+  if(!alerts.length){box.style.display="none";return;}
+  box.style.display="";
+  box.innerHTML=alerts.slice(0,3).map(p=>{
+    const d=getDaysLeft(p.dlc);
+    return`<div class="notif-item">${d<0?`🔴 ${p.name} a expiré !`:`⚠️ ${p.name} expire dans ${d} jour(s)`}</div>`;
+  }).join("")+(alerts.length>3?`<div style="opacity:.8">…et ${alerts.length-3} autre(s)</div>`:"");
+}
+
+function renderTab(){
+  if(currentTab==="dashboard")renderDashboard();
+  if(currentTab==="products")renderProducts();
+  if(currentTab==="stats")renderStats();
+  if(currentTab==="delivery")renderDelivery();
+  if(currentTab==="checklist")renderChecklist();
+  if(currentTab==="history")renderHistory();
+}
+
+function renderDashboard(){
+  const active=products.filter(p=>!p.retired);
+  const stats=[
+    {label:"Total",value:active.length,color:"#3b82f6",bg:"#eff6ff",icon:"📦"},
+    {label:"OK",value:active.filter(p=>getStatus(p)==="ok").length,color:"#10b981",bg:"#ecfdf5",icon:"✅"},
+    {label:"Alertes",value:active.filter(p=>getStatus(p)==="alert").length,color:"#f59e0b",bg:"#fffbeb",icon:"⚠️"},
+    {label:"Expirés",value:active.filter(p=>getStatus(p)==="expired").length,color:"#ef4444",bg:"#fef2f2",icon:"🔴"},
+  ];
+  const alertP=active.filter(p=>getStatus(p)!=="ok").sort((a,b)=>getDaysLeft(a.dlc)-getDaysLeft(b.dlc));
+
+  // Next deliveries
+  const todayDow=(new Date().getDay()+6)%7; // 0=Mon
+  const upcoming=[];
+  deliveries.forEach(d=>{
+    d.days.forEach(day=>{
+      let diff=(day-todayDow+7)%7;
+      upcoming.push({...d,nextIn:diff===0?0:diff,dayLabel:diff===0?"Aujourd'hui":diff===1?"Demain":DAYS_FR[day]});
+    });
+  });
+  upcoming.sort((a,b)=>a.nextIn-b.nextIn);
+  const nextDel=upcoming.slice(0,2);
+
+  // Checklist progress
+  const done=checklistTemplate.filter(c=>checklistState[c.id]).length;
+  const total=checklistTemplate.length;
+  const pct=total?Math.round(done/total*100):0;
+
+  document.getElementById("tab-dashboard").innerHTML=`
+    <div class="stats-grid">
+      ${stats.map(s=>`<div class="stat-card" style="background:${s.bg}">
+        <div class="stat-icon">${s.icon}</div>
+        <div class="stat-value" style="color:${s.color}">${s.value}</div>
+        <div class="stat-label">${s.label}</div>
+      </div>`).join("")}
+    </div>
+
+    ${nextDel.length?`
+    <div class="section-title">🚛 Prochaines livraisons</div>
+    ${nextDel.map(d=>`<div class="delivery-card" style="margin-bottom:8px">
+      <div class="delivery-day"><div class="delivery-day-num">${d.nextIn===0?"🚛":d.nextIn}</div><div class="delivery-day-name">${d.nextIn===0?"Auj.":d.nextIn===1?"Dem.":"jours"}</div></div>
+      <div style="flex:1"><div style="font-weight:700;font-size:13px;color:#1e293b">${d.supplier}</div><div style="font-size:11px;color:#64748b">${d.time||""} · ${d.categories.map(c=>CATEGORIES[c]?.icon).join(" ")}</div></div>
+      <span class="delivery-badge">${d.dayLabel}</span>
+    </div>`).join("")}
+    `:""}
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:4px">
+      <div class="section-title" style="margin:0">Par catégorie</div>
+    </div>
+    ${Object.entries(CATEGORIES).map(([id,cat])=>{
+      const cp=active.filter(p=>p.category===id);
+      const ca=cp.filter(p=>getStatus(p)==="alert"||getStatus(p)==="expired").length;
+      return`<div class="cat-row" onclick="goCategory('${id}')">
+        <div class="cat-icon-lg" style="background:${cat.bg}">${cat.icon}</div>
+        <div style="flex:1"><div style="font-weight:700;color:#1e293b;font-size:13px">${cat.label}</div><div style="font-size:11px;color:#64748b">${cp.length} produit(s)</div></div>
+        ${ca>0?`<span class="cat-alert-badge">🔔 ${ca}</span>`:""}
+        <span style="color:#94a3b8;font-size:16px">›</span>
+      </div>`;
+    }).join("")}
+
+    ${alertP.length?`
+      <div class="section-title-red">🔔 Alertes immédiates</div>
+      ${alertP.map(p=>{
+        const s=getStatus(p);const d=getDaysLeft(p.dlc);const cat=CATEGORIES[p.category];
+        return`<div class="alert-card ${s==="expired"?"alert-card-exp":"alert-card-warn"}">
+          <span style="font-size:17px">${cat?.icon}</span>
+          <div style="flex:1"><div style="font-weight:700;font-size:13px;color:#1e293b">${p.name}</div>
+          <div style="font-size:11px;color:#64748b">DLC : ${new Date(p.dlc).toLocaleDateString("fr-FR")}</div></div>
+          ${badge(s,d)}
+        </div>`;
+      }).join("")}
+    `:""}
+
+    <div style="margin-top:14px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
+      <div>
+        <div style="font-weight:700;color:#1e293b;font-size:13px">✅ HACCP du jour</div>
+        <div style="font-size:11px;color:#64748b;margin-top:2px">${done}/${total} tâches complétées</div>
+        <div style="background:#e2e8f0;border-radius:6px;height:6px;margin-top:6px;overflow:hidden;width:120px"><div style="background:${pct===100?"#16a34a":"#c8102e"};width:${pct}%;height:100%;border-radius:6px"></div></div>
+      </div>
+      <button class="btn-red" onclick="switchTab('checklist',document.querySelectorAll('.tab')[4])" style="font-size:12px">Voir</button>
+    </div>
+
+    <div class="export-card">
+      <div><div style="font-weight:700;color:#1e293b;font-size:13px">📊 Export des pertes</div><div style="font-size:11px;color:#64748b;margin-top:2px">Rapport Excel HACCP mensuel</div></div>
+      <button class="btn-red" onclick="openModal('modalExport')">Exporter</button>
+    </div>
+    ${currentUser?.role==="directeur"||currentUser?.role==="manager"?`<div class="export-card" style="margin-top:8px">
+      <div><div style="font-weight:700;color:#1e293b;font-size:13px">👥 Utilisateurs</div><div style="font-size:11px;color:#64748b;margin-top:2px">Gérer l'équipe</div></div>
+      <button class="btn-red" onclick="openModal('modalUsers')">Gérer</button>
+    </div>`:""}
+  `;
+}
+
+function goCategory(id){
+  filterCat=id;filterStatus="all";
+  document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",i===1));
+  ["dashboard","products","stats","delivery","checklist","history"].forEach(t=>{
+    document.getElementById("tab-"+t).style.display=t==="products"?"":"none";
+  });
+  currentTab="products";renderProducts();
+}
+
+function renderProducts(){
+  const active=products.filter(p=>!p.retired);
+  const filtered=active.filter(p=>{
+    const s=getStatus(p);
+    if(filterCat!=="all"&&p.category!==filterCat)return false;
+    if(filterStatus==="alert"&&s!=="alert")return false;
+    if(filterStatus==="expired"&&s!=="expired")return false;
+    if(filterStatus==="ok"&&s!=="ok")return false;
+    return true;
+  }).sort((a,b)=>getDaysLeft(a.dlc)-getDaysLeft(b.dlc));
+
+  const catF=[`<button class="filter-btn ${filterCat==="all"?"active":""}" onclick="setCatFilter('all')">Tout</button>`,
+    ...Object.entries(CATEGORIES).map(([id,cat])=>
+      `<button class="filter-btn" style="${filterCat===id?`background:${cat.color};color:#fff;border-color:${cat.color}`:""}" onclick="setCatFilter('${id}')">${cat.icon} ${cat.label}</button>`)
+  ].join("");
+
+  const statF=[["all","Tous"],["ok","✅ OK"],["alert","⚠️ Alerte"],["expired","🔴 Expirés"]].map(([v,l])=>
+    `<button class="filter-btn filter-btn-dark ${filterStatus===v?"active":""}" onclick="setStatFilter('${v}')">${l}</button>`
+  ).join("");
+
+  const cards=filtered.length?filtered.map(p=>{
+    const s=getStatus(p);const d=getDaysLeft(p.dlc);const cat=CATEGORIES[p.category];
+    return`<div class="card ${s==="expired"?"alert-exp":s==="alert"?"alert-warn":""}">
+      <div class="card-row">
+        <div class="cat-icon-box" style="background:${cat?.bg}">${cat?.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="card-name">${p.name}</div>
+          <div class="card-meta">DLC : <strong>${new Date(p.dlc).toLocaleDateString("fr-FR")}</strong>${p.quantity?` · ${p.quantity} ${p.unit}`:""}${p.price?` · ${p.price}€/u`:""}</div>
+          <div class="card-by">Ajouté par ${p.addedBy||"—"}</div>
+        </div>
+        ${badge(s,d)}
+      </div>
+      <div class="card-actions">
+        <button class="btn-retire" onclick="openRetire(${p.id})">🗑️ Retirer / Jeter</button>
+        <button class="btn-delete" onclick="deleteProduct(${p.id})">✕</button>
+      </div>
+    </div>`;
+  }).join(""):`<div class="empty">Aucun produit dans cette sélection.</div>`;
+
+  document.getElementById("tab-products").innerHTML=`
+    <div class="filters">${catF}</div>
+    <div class="filters">${statF}</div>
+    ${cards}`;
+}
+function setCatFilter(v){filterCat=v;renderProducts();}
+function setStatFilter(v){filterStatus=v;renderProducts();}
+
+function renderStats(){
+  const active=products.filter(p=>!p.retired);
+  const hist=products.filter(p=>p.retired||getStatus(p)==="expired");
+
+  // Pertes par mois (6 derniers mois)
+  const monthsData={};
+  for(let i=5;i>=0;i--){
+    const d=new Date();d.setMonth(d.getMonth()-i);
+    const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    const label=d.toLocaleString("fr-FR",{month:"short"});
+    monthsData[key]={label,count:0,cost:0};
+  }
+  hist.forEach(p=>{
+    const d=p.retiredAt?new Date(p.retiredAt):new Date(p.dlc);
+    const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    if(monthsData[key]){monthsData[key].count++;monthsData[key].cost+=(p.price||0)*(parseFloat(p.quantity)||1);}
+  });
+  const maxCount=Math.max(...Object.values(monthsData).map(m=>m.count),1);
+
+  // Top produits perdus
+  const lostCount={};
+  hist.forEach(p=>{lostCount[p.name]=(lostCount[p.name]||0)+1;});
+  const topLost=Object.entries(lostCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  // Coût total
+  const totalCost=hist.reduce((s,p)=>s+(p.price||0)*(parseFloat(p.quantity)||1),0);
+
+  document.getElementById("tab-stats").innerHTML=`
+    <div class="stats-grid" style="grid-template-columns:1fr 1fr">
+      <div class="stat-card" style="background:#fef2f2">
+        <div class="stat-icon">🗑️</div>
+        <div class="stat-value" style="color:#dc2626">${hist.length}</div>
+        <div class="stat-label">Pertes totales</div>
+      </div>
+      <div class="stat-card" style="background:#fefce8">
+        <div class="stat-icon">💸</div>
+        <div class="stat-value" style="color:#b45309;font-size:18px">${totalCost.toFixed(2)}€</div>
+        <div class="stat-label">Coût estimé pertes</div>
+      </div>
+    </div>
+
+    <div class="section-title">📉 Pertes par mois</div>
+    <div class="card" style="padding:14px">
+      ${Object.values(monthsData).map(m=>`
+        <div class="chart-bar-row">
+          <div class="chart-bar-label">${m.label}</div>
+          <div class="chart-bar-bg">
+            <div class="chart-bar-fill" style="width:${m.count?Math.max(m.count/maxCount*100,8):0}%;background:#c8102e">${m.count||""}</div>
+          </div>
+          <div class="chart-bar-val">${m.count}</div>
+        </div>
+      `).join("")}
+    </div>
+
+    <div class="section-title">🏆 Produits les plus perdus</div>
+    ${topLost.length?`<div class="card" style="padding:14px">
+      ${topLost.map(([name,count],i)=>`
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:${i<topLost.length-1?8:0}px">
+          <div style="width:24px;height:24px;border-radius:50%;background:${["#c8102e","#f59e0b","#3b82f6","#64748b","#94a3b8"][i]};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0">${i+1}</div>
+          <div style="flex:1;font-size:13px;font-weight:600;color:#1e293b">${name}</div>
+          <div style="font-size:13px;font-weight:700;color:#dc2626">${count}x</div>
+        </div>
+      `).join("")}
+    </div>`:`<div class="empty">Aucune donnée disponible</div>`}
+
+    <div class="section-title">📊 Pertes par catégorie</div>
+    <div class="card" style="padding:14px">
+      ${Object.entries(CATEGORIES).map(([id,cat])=>{
+        const n=hist.filter(p=>p.category===id).length;
+        return`<div class="chart-bar-row">
+          <div class="chart-bar-label">${cat.icon} ${cat.label.split(" ")[0]}</div>
+          <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${n?Math.max(n/hist.length*100,8):0}%;background:${cat.color}">${n||""}</div></div>
+          <div class="chart-bar-val">${n}</div>
+        </div>`;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderDelivery(){
+  const todayDow=(new Date().getDay()+6)%7;
+  document.getElementById("tab-delivery").innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="section-title" style="margin:0">🚛 Planning des livraisons</div>
+      <button class="btn-red" onclick="openModal('modalDelivery')">+ Ajouter</button>
+    </div>
+    ${deliveries.length?deliveries.map(d=>{
+      const nextDays=d.days.map(day=>{
+        const diff=(day-todayDow+7)%7;
+        return{day,diff,label:diff===0?"Aujourd'hui":diff===1?"Demain":DAYS_FR[day]};
+      }).sort((a,b)=>a.diff-b.diff);
+      const next=nextDays[0];
+      return`<div class="delivery-card">
+        <div class="delivery-day">
+          <div class="delivery-day-num">${next.diff===0?"🚛":next.diff}</div>
+          <div class="delivery-day-name">${next.diff===0?"auj.":next.diff===1?"dem.":"jours"}</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:13px;color:#1e293b">${d.supplier}</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px">
+            ${d.time?`🕐 ${d.time} · `:""}${d.days.map(i=>DAYS_SHORT[i]).join(", ")}
+          </div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px">${d.categories.map(c=>CATEGORIES[c]?.icon+" "+CATEGORIES[c]?.label).join(", ")}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <span class="delivery-badge">${next.label}</span>
+          <button class="btn-delete" style="font-size:11px;padding:4px 8px" onclick="deleteDelivery(${d.id})">✕</button>
+        </div>
+      </div>`;
+    }).join(""):`<div class="empty">Aucune livraison planifiée.<br/>Appuie sur "+ Ajouter" pour commencer.</div>`}
+  `;
+}
+
+function renderChecklist(){
+  const ouverture=checklistTemplate.filter(c=>c.category==="ouverture");
+  const fermeture=checklistTemplate.filter(c=>c.category==="fermeture");
+  const done=checklistTemplate.filter(c=>checklistState[c.id]).length;
+  const total=checklistTemplate.length;
+  const pct=total?Math.round(done/total*100):0;
+
+  const renderSection=(title,items)=>`
+    <div class="section-title">${title}</div>
+    ${items.map(c=>{
+      const isDone=!!checklistState[c.id];
+      const info=checklistState[c.id];
+      return`<div class="checklist-item ${isDone?"done":""}" onclick="toggleChecklistItem('${c.id}')">
+        <div class="checklist-check">${isDone?"✓":""}</div>
+        <div style="flex:1">
+          <div class="checklist-label">${c.label}</div>
+          ${isDone&&info?`<div class="checklist-meta">✅ ${info.by} · ${info.at}</div>`:""}
+        </div>
+      </div>`;
+    }).join("")}
+  `;
+
+  document.getElementById("tab-checklist").innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div>
+        <div class="section-title" style="margin:0">✅ Checklist HACCP</div>
+        <div style="font-size:11px;color:#64748b;margin-top:2px">${new Date().toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})}</div>
+      </div>
+      <button class="btn-cancel" style="font-size:11px;padding:7px 12px" onclick="resetChecklist()">Réinitialiser</button>
+    </div>
+
+    <div style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:14px;border:1px solid #e2e8f0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-weight:700;font-size:13px;color:#1e293b">Progression du jour</div>
+        <div style="font-weight:800;font-size:15px;color:${pct===100?"#16a34a":"#c8102e"}">${pct}%</div>
+      </div>
+      <div style="background:#f1f5f9;border-radius:8px;height:10px;overflow:hidden">
+        <div style="background:${pct===100?"#16a34a":"#c8102e"};width:${pct}%;height:100%;border-radius:8px;transition:width .5s"></div>
+      </div>
+      <div style="font-size:11px;color:#64748b;margin-top:6px">${done} / ${total} tâches complétées</div>
+    </div>
+
+    ${renderSection("🌅 Ouverture",ouverture)}
+    ${renderSection("🌙 Fermeture",fermeture)}
+  `;
+}
+
+function renderHistory(){
+  const hist=products.filter(p=>p.retired||getStatus(p)==="expired");
+  const cards=hist.length?hist.map(p=>{
+    const cat=CATEGORIES[p.category];const s=getStatus(p);const d=getDaysLeft(p.dlc);
+    return`<div class="card" style="opacity:.85">
+      <div class="card-row">
+        <span style="font-size:17px">${cat?.icon}</span>
+        <div style="flex:1">
+          <div class="card-name">${p.name}</div>
+          <div class="card-meta">DLC : ${new Date(p.dlc).toLocaleDateString("fr-FR")}${p.quantity?` · ${p.quantity} ${p.unit}`:""}${p.price?` · ${p.price}€/u`:""}</div>
+          ${p.retiredAt?`<div style="font-size:10px;color:#94a3b8">Retiré le ${new Date(p.retiredAt).toLocaleDateString("fr-FR")} par ${p.retiredBy||"—"}${p.retireReason?` · ${p.retireReason}`:""}</div>`:""}
+        </div>
+        ${badge(s,d)}
+      </div>
+      <button class="btn-delete" style="width:100%;margin-top:8px;padding:6px;border-radius:7px" onclick="deleteProduct(${p.id})">Supprimer définitivement</button>
+    </div>`;
+  }).join(""):`<div class="empty">Aucun historique pour le moment.</div>`;
+
+  document.getElementById("tab-history").innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="section-title" style="margin:0">🗂️ Historique des retraits</div>
+      <button class="btn-red" onclick="openModal('modalExport')" style="font-size:11px;padding:7px 12px">📊 Export</button>
+    </div>
+    ${cards}`;
+}
+
+// =====================
+// INIT
+// =====================
+load();
+renderLogin();
+</script>
+</body>
+</html>
